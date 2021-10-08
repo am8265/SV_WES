@@ -1,0 +1,17 @@
+#! /bin/bash
+#$ -S /bin/bash
+#$ -cwd
+#$ -j y
+#$ -V
+#$ -M am5153@cumc.columbia.edu
+#$ -m bea
+#$ -pe threaded 8
+#$ -o /nfs/seqscratch09/am5153/LUMPYEXPRESS_LOGS
+#$ -o /nfs/seqscratch09/am5153/LUMPYEXPRESS_LOGS
+bedFile=$1
+outPrefix=$2
+entry=$(sed -n -e "$SGE_TASK_ID p" ${bedFile})
+outDir=$(dirname ${entry})
+sample=$(basename ${entry} '.bed')
+$ANNOTSV/bin/AnnotSV -SVinputFile ${entry} -bedtools /nfs/goldstein/software/bedtools-2.25.0/bin/bedtools -outputFile ${outDir}/${outPrefix}_${sample}/${outPrefix}_${sample}.tsv -svtBEDcol 4 -overlap 99 -SVinputInfo 1 >& ${outPrefix}_${sample}.log &&
+head -n1 ${outDir}/${outPrefix}_${sample}/${outPrefix}_${sample}.tsv > ${outDir}/${outPrefix}_${sample}/${outPrefix}_${sample}.TMP.tsv && tail -n+2 ${outDir}/${outPrefix}_${sample}/${outPrefix}_${sample}.tsv | sort -k2,2V -k3,3n -k4,4n >> ${outDir}/${outPrefix}_${sample}/${outPrefix}_${sample}.TMP.tsv && mv ${outDir}/${outPrefix}_${sample}/${outPrefix}_${sample}.TMP.tsv ${outDir}/${outPrefix}_${sample}/${outPrefix}_${sample}.tsv
